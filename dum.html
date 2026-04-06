@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aarogya Mitra</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+/* (same CSS as before, unchanged) */
+</style>
+</head>
+<body>
+
+<div id="toggleBtn" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></div>
+
+<div class="sidebar" id="sidebar">
+  <a href="#" data-key="Dashboard"><i class="fa-solid fa-house"></i> Dashboard</a>
+  <a href="symptom-checker.html" data-key="Symptom Checker"><i class="fa-solid fa-stethoscope"></i> Symptom Checker</a>
+  <a href="appointment.html" data-key="Book Appointment"><i class="fa-solid fa-calendar-check"></i> Book Appointment</a>
+  <a href="hospitals.html" data-key="Find Hospitals"><i class="fa-solid fa-hospital"></i> Find Hospitals</a>
+  <a href="reports.html" data-key="Reports"><i class="fa-solid fa-file-medical"></i> Reports</a>
+  <a href="medical-orders.html" data-key="Medical Orders"><i class="fa-solid fa-prescription-bottle-medical"></i> Medical Orders</a>
+  <a href="#" id="logoutLink" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+</div>
+
+<header>
+  <i class="fa-solid fa-heart-pulse"></i> <span id="dashboardTitle">Aarogya Mitra</span>
+  <a href="emergency.html"><i id="emergencyIcon" class="fa-solid fa-triangle-exclamation"></i></a>
+  <i id="profileIcon" class="fa-solid fa-user" onclick="openProfile()"></i>
+  <select id="languageSelector" onchange="changeLanguage()">
+    <option value="en">English</option>
+    <option value="hi">Hindi</option>
+    <option value="pa">Punjabi</option>
+  </select>
+</header>
+
+<!-- (same dashboard, widgets, and modal as before, unchanged) -->
+
+<script>
+const toggleSidebar = () => {
+  const sidebar=document.getElementById('sidebar');
+  if(sidebar.style.width==='250px'){ sidebar.style.width='0'; document.body.style.marginLeft='0'; }
+  else{ sidebar.style.width='250px'; document.body.style.marginLeft='250px'; }
+}
+
+const openProfile = () => { document.getElementById('profileModal').style.display='flex'; loadProfile(); }
+const closeProfile = () => { document.getElementById('profileModal').style.display='none'; }
+const checkOtherDisease = () => {
+  const disease=document.getElementById('disease').value;
+  document.getElementById('otherLabel').style.display=disease==='other'?'block':'none';
+  document.getElementById('otherDisease').style.display=disease==='other'?'block':'none';
+}
+
+const saveProfile = () => {
+  let disease=document.getElementById('disease').value;
+  if(disease==='other') disease=document.getElementById('otherDisease').value;
+  const profile={
+    name:document.getElementById('name').value,
+    age:document.getElementById('age').value,
+    weight:document.getElementById('weight').value,
+    height:document.getElementById('height').value,
+    disease:disease,
+    history:document.getElementById('history').value
+  };
+  localStorage.setItem('userProfile',JSON.stringify(profile));
+  const lang=document.getElementById('languageSelector').value;
+  const msg = lang==='hi'?'✅ प्रोफ़ाइल सहेजें!':lang==='pa'?'✅ ਪ੍ਰੋਫਾਈਲ ਸੇਵ ਹੋਇਆ!':'✅ Profile saved!';
+  alert(msg);
+  closeProfile();
+}
+
+const loadProfile = () => {
+  const profile=JSON.parse(localStorage.getItem('userProfile'));
+  if(!profile) return;
+  document.getElementById('name').value=profile.name;
+  document.getElementById('age').value=profile.age;
+  document.getElementById('weight').value=profile.weight;
+  document.getElementById('height').value=profile.height;
+  document.getElementById('history').value=profile.history;
+  if(["diabetes","heart","asthma","bp","kidney","obesity","cancer","arthritis","thyroid","cholesterol"].includes(profile.disease)){
+    document.getElementById('disease').value=profile.disease;
+    document.getElementById('otherLabel').style.display='none';
+    document.getElementById('otherDisease').style.display='none';
+  } else {
+    document.getElementById('disease').value='other';
+    document.getElementById('otherLabel').style.display='block';
+    document.getElementById('otherDisease').style.display='block';
+    document.getElementById('otherDisease').value=profile.disease;
+  }
+}
+
+const logout = () => {
+  localStorage.clear();
+  const lang=document.getElementById('languageSelector').value;
+  const msg = lang==='hi'?'✅ लॉग आउट!':lang==='pa'?'✅ ਲੌਗ ਆਉਟ!':'✅ Logged out!';
+  alert(msg);
+  location.reload();
+}
+
+function changeLanguage(){
+  const lang=document.getElementById('languageSelector').value;
+  const translations = {
+    hi:{
+      'Aarogya Mitra':'आरोग्य मित्र','Dashboard':'डैशबोर्ड','Symptom Checker':'लक्षण जाँच','Book Appointment':'अपॉइंटमेंट बुक करें',
+      'Find Hospitals':'अस्पताल खोजें','Reports':'रिपोर्ट्स','Medical Orders':'मेडिकल ऑर्डर','Logout':'लॉग आउट',
+      'Daily Health Tip':'दैनिक स्वास्थ्य सुझाव','Today’s Challenge':'आज की चुनौती','Reminders':'रिमाइंडर',
+      'Profile Information':'प्रोफ़ाइल जानकारी','Name':'नाम','Age':'आयु','Weight':'वज़न (kg)','Height':'ऊंचाई (cm)',
+      'Disease':'रोग','Enter Disease':'रोग दर्ज करें','Medical History':'चिकित्सा इतिहास','Save Profile':'प्रोफ़ाइल सहेजें'
+    },
+    pa:{
+      'Aarogya Mitra':'ਆਰੋਗਿਆ ਮਿਤਰ','Dashboard':'ਡੈਸ਼ਬੋਰਡ','Symptom Checker':'ਲੱਛਣ ਜਾਂਚ','Book Appointment':'ਅਪੋਇੰਟਮੈਂਟ ਬੁੱਕ ਕਰੋ',
+      'Find Hospitals':'ਹਸਪਤਾਲ ਲੱਭੋ','Reports':'ਰਿਪੋਰਟਾਂ','Medical Orders':'ਮੈਡੀਕਲ ਆਰਡਰ','Logout':'ਲੌਗ ਆਉਟ',
+      'Daily Health Tip':'ਦੈਨਿਕ ਸਿਹਤ ਸੁਝਾਅ','Today’s Challenge':'ਅੱਜ ਦੀ ਚੁਣੌਤੀ','Reminders':'ਰਿਮਾਈਂਡਰ',
+      'Profile Information':'ਪ੍ਰੋਫਾਈਲ ਜਾਣਕਾਰੀ','Name':'ਨਾਮ','Age':'ਉਮਰ','Weight':'ਵਜ਼ਨ (kg)','Height':'ਉਚਾਈ (cm)',
+      'Disease':'ਬੀਮਾਰੀ','Enter Disease':'ਬੀਮਾਰੀ ਦਰਜ ਕਰੋ','Medical History':'ਚਿਕਿਤਸਾ ਇਤਿਹਾਸ','Save Profile':'ਪ੍ਰੋਫਾਈਲ ਸੇਵ ਕਰੋ'
+    }
+  };
+  if(lang!=='en'){
+    document.getElementById('dashboardTitle').innerText=translations[lang]['Aarogya Mitra'];
+    document.querySelectorAll('[data-key]').forEach(el=>{
+      if(translations[lang][el.getAttribute('data-key')]) el.innerText=translations[lang][el.getAttribute('data-key')];
+    });
+    document.getElementById('logoutLink').innerText=translations[lang]['Logout'];
+  } else {
+    document.getElementById('dashboardTitle').innerText='Aarogya Mitra';
+    document.querySelectorAll('[data-key]').forEach(el=>{ el.innerText=el.getAttribute('data-key'); });
+    document.getElementById('logoutLink').innerText='Logout';
+  }
+}
+</script>
+
+</body>
+</html>

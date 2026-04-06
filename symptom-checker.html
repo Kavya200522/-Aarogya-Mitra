@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Symptom Checker</title>
+
+<style>
+body{
+ margin:0;
+ font-family:Poppins,sans-serif;
+ background:url('https://wallpapers.com/images/featured/medical-background-cjge7e89adg6ub8x.jpg') no-repeat center/cover fixed;
+}
+header{
+ background:#17a2b8;
+ color:white;
+ text-align:center;
+ padding:15px;
+ font-size:20px;
+ font-weight:bold;
+}
+.container{
+ max-width:520px;
+ margin:30px auto;
+ background:rgba(255,255,255,0.96);
+ padding:20px;
+ border-radius:12px;
+ box-shadow:0 4px 20px rgba(0,0,0,0.2);
+ text-align:center;
+}
+
+/* FIXED INPUT AREA */
+.input-group{
+ display:flex;
+ align-items:center;
+ gap:8px;
+}
+.input-group input{
+ flex:1;
+ padding:10px 12px;
+ border-radius:8px;
+ border:1px solid #ccc;
+ font-size:14px;
+}
+
+/* MIC BUTTON – NO OVERLAP */
+.mic-btn{
+ width:40px;
+ height:40px;
+ background:#17a2b8;
+ border:none;
+ border-radius:50%;
+ cursor:pointer;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+}
+.mic-btn img{
+ width:18px;
+ pointer-events:none;
+}
+
+button{
+ width:100%;
+ margin-top:10px;
+ padding:10px;
+ background:#17a2b8;
+ color:white;
+ border:none;
+ border-radius:8px;
+ font-weight:bold;
+ cursor:pointer;
+}
+
+.result-card{
+ background:linear-gradient(135deg,#17a2b8,#6fc3df);
+ color:white;
+ padding:15px;
+ border-radius:10px;
+ margin-top:15px;
+ text-align:left;
+}
+
+.badge{
+ padding:4px 8px;
+ border-radius:6px;
+ font-size:12px;
+ font-weight:bold;
+ display:inline-block;
+}
+.low{ background:#28a745; }
+.medium{ background:#ffc107; color:#333; }
+.high{ background:#dc3545; }
+
+.video-btn,.doctor-btn{
+ width:100%;
+ margin-top:8px;
+ padding:8px;
+ border:none;
+ border-radius:6px;
+ font-weight:bold;
+ cursor:pointer;
+}
+.video-btn{ background:rgba(255,255,255,0.3); color:white; }
+.doctor-btn{ background:#fff; color:#17a2b8; }
+</style>
+</head>
+
+<body>
+
+<header>🩺 Symptom Checker</header>
+
+<div class="container">
+<h2>Enter Your Symptoms</h2>
+
+<div class="input-group">
+ <input type="text" id="symptomInput" placeholder="fever, cough, headache">
+ <button class="mic-btn" id="micBtn" type="button">
+  🎤
+ </button>
+</div>
+
+<!-- User-selected Severity -->
+<select id="severitySelect">
+  <option value="">-- Choose Severity --</option>
+  <option value="Low">Low</option>
+  <option value="Medium">Medium</option>
+  <option value="High">High</option>
+</select>
+
+<button onclick="checkSymptoms()">Check</button>
+<div id="resultBox"></div>
+</div>
+
+<script>
+// ---------------- DISEASE DATABASE ----------------
+const diseaseData=[
+ {name:"Fever", keywords:["fever","headache","body pain"], info:"Fever usually indicates infection.", remedies:"Drink fluids, rest.", video:"https://www.youtube.com/watch?v=lcQfIg9rKBc"},
+ {name:"Common Cold", keywords:["cold","cough","sneezing"], info:"Cold is a viral infection.", remedies:"Steam inhalation, rest.", video:"https://www.youtube.com/watch?v=BafXn6YuBsM"},
+ {name:"Flu", keywords:["fever","fatigue","body pain"], info:"Flu causes fever & weakness.", remedies:"Hydration, rest.", video:"https://www.youtube.com/watch?v=O5CGJRuosOQ"},
+ {name:"COVID-like", keywords:["loss of taste","loss of smell","fever","fatigue"], info:"Possible COVID symptoms.", remedies:"Isolate & test.", video:"https://www.youtube.com/watch?v=QmVlckKeZqc"},
+ {name:"Dengue", keywords:["high fever","joint pain","rash"], info:"Mosquito-borne disease.", remedies:"Avoid aspirin.", video:""}
+];
+
+// ---------------- ANALYSIS LOGIC ----------------
+function analyze(symptoms){
+ symptoms=symptoms.toLowerCase();
+ let results=[];
+ diseaseData.forEach(d=>{
+  let matched=d.keywords.filter(k=>symptoms.includes(k)).length;
+  if(matched>0){
+   let probability=Math.round((matched/d.keywords.length)*100);
+   let severity=matched>=3?"High":matched===2?"Medium":"Low";
+   results.push({...d,probability,severity});
+  }
+ });
+ return results;
+}
+
+// ---------------- DISPLAY OUTPUT ----------------
+function checkSymptoms(){
+ const input=document.getElementById("symptomInput").value.trim();
+ const box=document.getElementById("resultBox");
+ const userSeverity=document.getElementById("severitySelect").value;
+ box.innerHTML="";
+ if(!input){
+   alert("Please enter your symptoms!");
+   return;
+ }
+ if(!userSeverity){
+   alert("Please select severity!");
+   return;
+ }
+
+ const results=analyze(input);
+
+ if(results.length===0){
+  box.innerHTML=`<div class="result-card">
+   ❓ No related disease found.<br>
+   ⚠️ Consult a doctor if symptoms persist.
+  </div>`;
+  return;
+ }
+
+ results.forEach(d=>{
+  box.innerHTML+=`
+  <div class="result-card">
+   <h3>${d.name}</h3>
+   <p><b>Probability:</b> ${d.probability}%</p>
+   <p><b>Severity:</b>
+    <span class="badge ${userSeverity.toLowerCase()}">${userSeverity}</span>
+   </p>
+   <p><b>Info:</b> ${d.info}</p>
+   <p><b>Remedies:</b> ${d.remedies}</p>
+   ${d.video?`<button class="video-btn" onclick="window.open('${d.video}')">▶ Watch Video</button>`:""}
+   ${userSeverity==="Low"?
+     `<button class="doctor-btn" style="background:#28a745;color:white;">💊 Medicines</button>`:
+     `<button class="doctor-btn" onclick="alert('👨‍⚕️ Please consult a qualified doctor.')">👨‍⚕️ Consult Doctor</button>`}
+  </div>`;
+ });
+}
+
+// ---------------- MIC INPUT ----------------
+const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+if(SpeechRecognition){
+ const rec=new SpeechRecognition();
+ rec.onresult=e=>document.getElementById("symptomInput").value=e.results[0][0].transcript;
+ document.getElementById("micBtn").onclick=()=>rec.start();
+}
+</script>
+
+</body>
+</html>

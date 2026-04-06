@@ -1,0 +1,45 @@
+from flask import Flask, request, jsonify
+from flask_cors import CORS  # To allow requests from your frontend
+
+app = Flask(__name__)
+CORS(app)  # Enable cross-origin requests
+
+# Sample symptom data
+SYMPTOM_DB = {
+    "fever": {
+        "info": "A temporary increase in body temperature, often due to infection.",
+        "remedies": "Rest, drink plenty of fluids, take paracetamol if needed."
+    },
+    "cough": {
+        "info": "A reflex to clear your airways of mucus or irritants.",
+        "remedies": "Stay hydrated, honey, steam inhalation, cough syrup if needed."
+    },
+    "headache": {
+        "info": "Pain in the head, can be caused by stress, dehydration, or illness.",
+        "remedies": "Rest, drink water, take pain relievers if necessary."
+    }
+}
+
+@app.route("/check_symptoms", methods=["POST"])
+def check_symptoms():
+    data = request.get_json()
+    symptom_input = data.get("symptoms", "").lower()
+
+    # Simple lookup: if exact match in DB, else generic message
+    if symptom_input in SYMPTOM_DB:
+        response = {
+            "symptom": symptom_input,
+            "info": SYMPTOM_DB[symptom_input]["info"],
+            "remedies": SYMPTOM_DB[symptom_input]["remedies"]
+        }
+    else:
+        response = {
+            "symptom": symptom_input,
+            "info": "No specific information found. Please consult a doctor for proper diagnosis.",
+            "remedies": "Rest, stay hydrated, and seek medical attention if symptoms persist."
+        }
+
+    return jsonify(response)
+
+if __name__ == "__main__":
+    app.run(debug=True)

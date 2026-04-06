@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Professional Online Pharmacy</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+body{font-family:'Roboto',sans-serif;margin:0;background:#f4f5f7;color:#000;transition:all 0.3s;}
+header{background:#17a2b8;color:white;padding:15px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;}
+header h1{margin:0;font-weight:700;font-size:20px;}
+header .top-controls{display:flex;gap:12px;align-items:center;}
+header .top-controls button{background:#17a2b8;border:none;padding:10px 16px;border-radius:6px;color:white;display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer;}
+.controls{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;padding:15px 0;}
+select,input[type="text"]{padding:10px 14px;border-radius:8px;border:1px solid #ccc;font-size:15px;min-width:200px;}
+.micBtn{background:#17a2b8;color:white;border:none;border-radius:50%;width:45px;height:45px;display:flex;justify-content:center;align-items:center;font-size:18px;cursor:pointer;}
+main{max-width:1000px;margin:20px auto;}
+.card{background:white;border-radius:10px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,0.08);margin-bottom:20px;}
+.card h2{margin-top:0;color:#17a2b8;font-size:18px;border-bottom:2px solid #eee;padding-bottom:6px;}
+.med-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid #eee;}
+.med-left{display:flex;align-items:center;gap:12px;}
+.med-left img{width:60px;height:60px;object-fit:contain;border-radius:8px;border:1px solid #ddd;background:white;}
+.med-info{display:flex;flex-direction:column;}
+.med-name{font-weight:600;font-size:15px;}
+.med-price{font-size:14px;color:#555;margin-top:4px;}
+.btn{padding:8px 14px;border:none;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;}
+.addBtn{background:#17a2b8;color:white;display:flex;align-items:center;gap:6px;}
+.nextBtn{background:#17a2b8;color:white;width:100%;margin-top:10px;}
+.payBtn{background:#17a2b8;color:white;width:100%;margin-top:8px;}
+#cartItems{list-style:none;padding:0;margin:0;}
+#cartItems li{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px dashed #ccc;font-size:14px;}
+.cart-controls{display:flex;align-items:center;gap:6px;}
+.cart-controls button{padding:2px 6px;border:none;border-radius:4px;background:#17a2b8;color:white;cursor:pointer;}
+.cart-controls button.removeBtn{background:#17a2b8;}
+.payment-option{display:flex;align-items:center;gap:6px;margin:8px 0;}
+.drop-zone{border:2px dashed #17a2b8;border-radius:10px;padding:20px;cursor:pointer;background:#f0f8ff;text-align:center;}
+.drop-zone img{max-width:200px;margin-top:10px;border-radius:8px;}
+footer{text-align:center;margin-top:20px;font-size:13px;color:#666;}
+#voiceResult{font-style:italic;color:#555;margin-top:5px;text-align:center;}
+
+/* 🔹 Dark Mode */
+body.dark-mode{background:#121212;color:#eee;}
+body.dark-mode header{background:#222;color:#fff;}
+body.dark-mode .card{background:#1e1e1e;color:#eee;box-shadow:0 2px 8px rgba(255,255,255,0.05);}
+body.dark-mode .drop-zone{background:#1a1a1a;border-color:#17a2b8;color:#eee;}
+body.dark-mode input,body.dark-mode select{background:#333;color:#eee;border-color:#555;}
+body.dark-mode #voiceResult{color:#ccc;}
+
+/* 🔹 Order History Modal */
+.order-history-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);display:none;justify-content:center;align-items:center;}
+.order-history-content{background:white;padding:20px;border-radius:10px;max-width:600px;max-height:80vh;overflow-y:auto;}
+.order-history-content h2{margin-top:0;color:#17a2b8;}
+.order-card{border:1px solid #ddd;border-radius:8px;padding:10px;margin-bottom:10px;}
+.order-card img{max-width:120px;border-radius:8px;margin-top:5px;}
+.close-btn{background:#17a2b8;color:white;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;float:right;}
+/* 🔹 Toast Notification */
+#toast{position:fixed;bottom:20px;right:20px;padding:10px;background:#17a2b8;color:white;border-radius:6px;display:none;z-index:9999;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1 id="appTitle">💊 Online Pharmacy</h1>
+  <div class="top-controls">
+    <button id="myOrdersBtn">📜 My Orders</button>
+    <button id="themeToggle">🌙 Dark Mode</button>
+    <select id="langSelect">
+      <option value="en">English</option>
+      <option value="te">తెలుగు</option>
+      <option value="hi">हिन्दी</option>
+      <option value="pa">ਪੰਜਾਬੀ</option>
+    </select>
+  </div>
+</header>
+
+<!-- 🔹 Order History Modal -->
+<div class="order-history-modal" id="orderHistoryModal">
+  <div class="order-history-content">
+    <button class="close-btn" id="closeHistory">Close ✖</button>
+    <h2>📜 My Orders</h2>
+    <div id="ordersList"></div>
+  </div>
+</div>
+
+<!-- 🔹 Toast Notification -->
+<div id="toast"></div>
+
+<div class="controls">
+  <input type="text" id="searchBox" placeholder="Search medicine or symptom...">
+  <button class="micBtn" id="micBtn"><i class="fa-solid fa-microphone"></i></button>
+</div>
+<div id="voiceResult"></div>
+
+<main>
+  <!-- Step 1: Medicines -->
+  <section class="card" id="medicineSection">
+    <h2 id="medTitle">Step 1: Select Medicines</h2>
+    <div id="medicineList"></div>
+    <h3 id="cartTitle">Cart</h3>
+    <ul id="cartItems"></ul>
+    <p id="totalPrice">Total: ₹0</p>
+    <button class="btn nextBtn" id="goToPrescriptionBtn" disabled>Next: Prescription</button>
+  </section>
+
+  <!-- Step 2: Prescription -->
+  <section class="card" id="prescriptionSection" style="display:none;">
+    <h2>Step 2: Upload Prescription (Optional)</h2>
+    <div class="drop-zone" id="dropArea">Click or Drag & Drop Prescription
+      <input type="file" id="prescriptionInput" accept="image/*" hidden>
+      <img id="prescriptionPreview" style="display:none;">
+    </div>
+    <button class="btn nextBtn" id="skipPrescriptionBtn">Skip</button>
+    <button class="btn nextBtn" id="goToAddressBtn">Next: Address</button>
+  </section>
+
+  <!-- Step 3: Address -->
+  <section class="card" id="addressSection" style="display:none;">
+    <h2>Step 3: Delivery Address</h2>
+    <input type="text" id="nameInput" placeholder="Full Name" required><br><br>
+    <input type="text" id="phoneInput" placeholder="Phone Number" required><br><br>
+    <input type="text" id="addressInput" placeholder="Address" required><br><br>
+    <input type="text" id="pincodeInput" placeholder="Pincode" required><br><br>
+    <button class="btn nextBtn" id="goToPaymentBtn">Next: Payment</button>
+  </section>
+
+  <!-- Step 4: Payment -->
+  <section class="card" id="paymentSection" style="display:none;">
+    <h2>Step 4: Payment</h2>
+    <div class="payment-option"><input type="radio" name="payment" value="UPI" checked> <i class="fa-solid fa-credit-card"></i> UPI/Card</div>
+    <div class="payment-option"><input type="radio" name="payment" value="Wallet"> <i class="fa-solid fa-wallet"></i> Wallet</div>
+    <div class="payment-option"><input type="radio" name="payment" value="COD"> <i class="fa-solid fa-money-bill-wave"></i> Cash on Delivery</div>
+    <button class="btn payBtn" id="payNowBtn">Pay Now</button>
+  </section>
+
+  <!-- Step 5: Summary -->
+  <section class="card" id="orderSummary" style="display:none;">
+    <h2>Step 5: Order Summary</h2>
+    <p><b>Order ID:</b> <span id="orderId"></span></p>
+    <div id="summaryItems"></div>
+    <p><b>Total:</b> <span id="summaryTotal"></span></p>
+    <p><b>Delivery Address:</b></p>
+    <p id="summaryAddress"></p>
+    <p><b>Prescription:</b></p>
+    <img id="summaryPrescription" style="max-width:200px;border-radius:10px;display:none;">
+    <p><b>Order Status:</b> <span id="summaryStatus">Processing</span></p>
+  </section>
+</main>
+
+<footer>Professional Online Pharmacy Demo</footer>
+
+<script>
+// 🔹 Translations
+const translations={en:{appTitle:"💊 Online Pharmacy",medTitle:"Medicines",cartTitle:"Cart",total:"Total",addedToCart:"Added to cart",paySuccess:"Order placed successfully!"},
+te:{appTitle:"💊 ఆన్‌లైన్ మెడిసిన్ షాప్",medTitle:"💊 మందులు",cartTitle:"కార్ట్",total:"మొత్తం",addedToCart:"కార్ట్ కు జోడించబడింది",paySuccess:"ఆర్డర్ విజయవంతం!"},
+hi:{appTitle:"💊 ऑनलाइन मेडिसिन शॉप",medTitle:"💊 दवाइयाँ",cartTitle:"कार्ट",total:"कुल",addedToCart:"कार्ट में जोड़ा गया",paySuccess:"ऑर्डर सफल!"},
+pa:{appTitle:"💊 ਆਨਲਾਈਨ ਦਵਾਈ ਦੁਕਾਨ",medTitle:"💊 ਦਵਾਈਆਂ",cartTitle:"ਕਾਰਟ",total:"ਕੁੱਲ",addedToCart:"ਕਾਰਟ ਵਿੱਚ ਜੋੜਿਆ ਗਿਆ",paySuccess:"ਆਰਡਰ ਸਫਲ!"}};
+
+// 🔹 Medicines & Symptoms (with images)
+const medicines=[
+{id:1,name_en:"Crocin Advance",name_te:"క్రోసిన్ అడ్వాన్స్",name_hi:"क्रोसिन एडवांस",name_pa:"ਕ੍ਰੋਸਿਨ ਐਡਵਾਂਸ",price:50,img:"https://i.ibb.co/8rKMGVm/crocin.jpg"},
+{id:2,name_en:"Dolo 650",name_te:"డోలొ 650",name_hi:"डोलो 650",name_pa:"ਡੋਲੋ 650",price:35,img:"https://i.ibb.co/3rFv5Bd/dolo.jpg"},
+{id:3,name_en:"Azithromycin",name_te:"అజిత్రోమైసిన్",name_hi:"एज़िथ्रोमाइसिन",name_pa:"ਅਜ਼ੀਥਰੋਮਾਈਸਿਨ",price:120,img:"https://i.ibb.co/mzkMfRL/azithromycin.jpg"},
+{id:4,name_en:"Paracetamol",name_te:"పారాసెటమాల్",name_hi:"पैरासिटामोल",name_pa:"ਪੈਰਾਸੀਟਾਮੋਲ",price:20,img:"https://i.ibb.co/8D3g9Xb/paracetamol.jpg"},
+{id:5,name_en:"Amoxicillin",name_te:"అమాక్సిసిలిన్",name_hi:"एमोक्सिसिलिन",name_pa:"ਐਮੋਕਸਿਸਿਲਿਨ",price:90,img:"https://i.ibb.co/4PMZb9S/amoxicillin.jpg"},
+{id:6,name_en:"Ibuprofen",name_te:"ఇబుప్రొఫెన్",name_hi:"इबुप्रोफेन",name_pa:"ਇਬੁਪ੍ਰੋਫੈਨ",price:60,img:"https://i.ibb.co/0yYB6J4/ibuprofen.jpg"}];
+
+// 🔹 Symptom Map
+const symptomMap = {"headache":[1,2,4],"fever":[2,3,4],"cold":[1,4],"infection":[3,5]};
+
+// 🔹 State
+let currentLang='en',cart=[],uploadedPrescription=null,deliveryAddress={};
+
+// 🔹 DOM Elements
+const appTitle=document.getElementById('appTitle');
+const medTitle=document.getElementById('medTitle');
+const cartTitle=document.getElementById('cartTitle');
+const totalPrice=document.getElementById('totalPrice');
+const medicineList=document.getElementById('medicineList');
+const cartItems=document.getElementById('cartItems');
+const goToPrescriptionBtn=document.getElementById('goToPrescriptionBtn');
+const prescriptionSection=document.getElementById('prescriptionSection');
+const prescriptionInput=document.getElementById('prescriptionInput');
+const prescriptionPreview=document.getElementById('prescriptionPreview');
+const dropArea=document.getElementById('dropArea');
+const skipPrescriptionBtn=document.getElementById('skipPrescriptionBtn');
+const goToAddressBtn=document.getElementById('goToAddressBtn');
+const addressSection=document.getElementById('addressSection');
+const nameInput=document.getElementById('nameInput');
+const phoneInput=document.getElementById('phoneInput');
+const addressInput=document.getElementById('addressInput');
+const pincodeInput=document.getElementById('pincodeInput');
+const goToPaymentBtn=document.getElementById('goToPaymentBtn');
+const paymentSection=document.getElementById('paymentSection');
+const payNowBtn=document.getElementById('payNowBtn');
+const orderSummary=document.getElementById('orderSummary');
+const orderIdEl=document.getElementById('orderId');
+const summaryItems=document.getElementById('summaryItems');
+const summaryTotal=document.getElementById('summaryTotal');
+const summaryPrescription=document.getElementById('summaryPrescription');
+const summaryAddress=document.getElementById('summaryAddress');
+const summaryStatus=document.getElementById('summaryStatus');
+const searchBox=document.getElementById('searchBox');
+const voiceResult=document.getElementById('voiceResult');
+const micBtn=document.getElementById('micBtn');
+const themeToggle=document.getElementById('themeToggle');
+const toast=document.getElementById('toast');
+
+// 🔹 Helpers
+function medName(m){return currentLang==='te'?m.name_te:currentLang==='hi'?m.name_hi:currentLang==='pa'?m.name_pa:m.name_en;}
+function showToast(msg){toast.textContent=msg;toast.style.display="block";setTimeout(()=>{toast.style.display="none";},2000);}
+function updateLanguage(){const t=translations[currentLang];appTitle.textContent=t.appTitle;medTitle.textContent=t.medTitle;cartTitle.textContent=t.cartTitle;totalPrice.textContent=`${t.total}: ₹${cart.reduce((s,i)=>s+(i.price*(i.qty||1)),0)}`;}
+
+// 🔹 Render Medicines
+function renderMedicines(filter=""){
+  medicineList.innerHTML="";
+  const q=filter.toLowerCase();
+  let filteredMedicines = medicines;
+  if(q){
+    if(symptomMap[q]) filteredMedicines = medicines.filter(m => symptomMap[q].includes(m.id));
+    else filteredMedicines = medicines.filter(m => medName(m).toLowerCase().includes(q));
+  }
+  filteredMedicines.forEach(m=>{
+    const div=document.createElement('div');
+    div.className="med-row";
+    div.innerHTML=`<div class="med-left"><img src="${m.img}"><div class="med-info"><div class="med-name">${medName(m)}</div><div class="med-price">₹${m.price}</div></div></div><div><button class="btn addBtn" onclick="addToCart(${m.id})"><i class="fa-solid fa-cart-plus"></i></button></div>`;
+    medicineList.appendChild(div);
+  });
+}
+
+// 🔹 Cart functions (same as your original code)
+function addToCart(id){let item=cart.find(x=>x.id===id);if(item){item.qty=(item.qty||1)+1;}else{const med=medicines.find(x=>x.id===id);if(med){cart.push({...med,qty:1});}}renderCart(); showToast(translations[currentLang].addedToCart);}
+function renderCart(){cartItems.innerHTML="";let total=0;cart.forEach((m,i)=>{total+=m.price*m.qty;const li=document.createElement('li');li.innerHTML=`<span>${medName(m)} - ₹${m.price}</span><div class="cart-controls"><button onclick="updateQty(${i},-1)">➖</button><span>${m.qty}</span><button onclick="updateQty(${i},1)">➕</button><button class="removeBtn" onclick="removeFromCart(${i})">🗑</button></div>`;cartItems.appendChild(li);});totalPrice.textContent=`${translations[currentLang].total}: ₹${total}`;goToPrescriptionBtn.disabled=cart.length===0;}
+function updateQty(index,change){cart[index].qty+=change;if(cart[index].qty<=0){cart.splice(index,1);}renderCart();}
+function removeFromCart(index){cart.splice(index,1);renderCart();}
+
+// 🔹 Steps navigation & other logic same as your code
+goToPrescriptionBtn.onclick=()=>{prescriptionSection.style.display="block";window.scrollTo({top:prescriptionSection.offsetTop,behavior:'smooth'});}
+dropArea.onclick=()=>prescriptionInput.click();
+prescriptionInput.onchange=e=>{const f=e.target.files[0];if(f){uploadedPrescription=URL.createObjectURL(f);prescriptionPreview.src=uploadedPrescription;prescriptionPreview.style.display="block";}}
+skipPrescriptionBtn.onclick=()=>{prescriptionSection.style.display="none";addressSection.style.display="block";window.scrollTo({top:addressSection.offsetTop,behavior:'smooth'});}
+goToAddressBtn.onclick=()=>{prescriptionSection.style.display="none";addressSection.style.display="block";window.scrollTo({top:addressSection.offsetTop,behavior:'smooth'});}
+goToPaymentBtn.onclick=()=>{if(!nameInput.value||!phoneInput.value||!addressInput.value||!pincodeInput.value){alert("Please fill all address fields.");return;}deliveryAddress={name:nameInput.value,phone:phoneInput.value,address:addressInput.value,pincode:pincodeInput.value};addressSection.style.display="none";paymentSection.style.display="block";window.scrollTo({top:paymentSection.offsetTop,behavior:'smooth'});};
+
+payNowBtn.onclick=()=>{if(cart.length===0){alert("Cart empty");return;}const order={id:"ORD"+Date.now(),date:new Date().toLocaleString(),items:cart.map(m=>({name:medName(m),qty:m.qty,price:m.price})),total:cart.reduce((s,i)=>s+i.price*i.qty,0),prescription:uploadedPrescription,address:deliveryAddress,status:"Processing"};let orders=JSON.parse(localStorage.getItem("orders")||"[]");orders.push(order);localStorage.setItem("orders",JSON.stringify(orders));showSummary(order);simulateOrderStatus(order.id);cart=[];renderCart();};
+
+function showSummary(order){orderIdEl.textContent=order.id;summaryItems.innerHTML="";order.items.forEach(m=>{const div=document.createElement("div");div.textContent=`${m.name} - ₹${m.price} × ${m.qty}`;summaryItems.appendChild(div);});summaryTotal.textContent="₹"+order.total;summaryPrescription.style.display="none";if(order.prescription){summaryPrescription.src=order.prescription;summaryPrescription.style.display="block";}summaryAddress.textContent=`${order.address.name}, ${order.address.phone}, ${order.address.address}, ${order.address.pincode}`;summaryStatus.textContent=order.status;orderSummary.style.display="block";window.scrollTo({top:orderSummary.offsetTop,behavior:'smooth'});}
+
+function simulateOrderStatus(orderId){let orders=JSON.parse(localStorage.getItem("orders")||"[]");setTimeout(()=>{orders.forEach(o=>{if(o.id===orderId){o.status="Shipped";}});localStorage.setItem("orders",JSON.stringify(orders));if(orderIdEl.textContent===orderId) summaryStatus.textContent="Shipped";},3000);setTimeout(()=>{orders.forEach(o=>{if(o.id===orderId){o.status="Delivered";}});localStorage.setItem("orders",JSON.stringify(orders));if(orderIdEl.textContent===orderId) summaryStatus.textContent="Delivered";},6000);}
+
+document.getElementById("myOrdersBtn").onclick=()=>{const modal=document.getElementById("orderHistoryModal");const list=document.getElementById("ordersList");list.innerHTML="";const orders=JSON.parse(localStorage.getItem("orders")||"[]");if(orders.length===0){list.innerHTML="<p>No previous orders.</p>";}else{orders.forEach(o=>{const div=document.createElement("div");div.className="order-card";div.innerHTML=`<p><b>Order ID:</b> ${o.id}</p><p><b>Date:</b> ${o.date}</p><p><b>Status:</b> ${o.status}</p><ul>${o.items.map(i=>`<li>${i.name} - ₹${i.price} × ${i.qty}</li>`).join("")}</ul><p><b>Total:</b> ₹${o.total}</p><p><b>Delivery Address:</b><br>${o.address.name}, ${o.address.phone}, ${o.address.address}, ${o.address.pincode}</p>${o.prescription?`<p><b>Prescription:</b><br><img src="${o.prescription}"></p>`:""}`;list.appendChild(div);});}modal.style.display="flex";};
+document.getElementById("closeHistory").onclick=()=>{document.getElementById("orderHistoryModal").style.display="none";};
+window.onclick=(e)=>{if(e.target.id==="orderHistoryModal"){document.getElementById("orderHistoryModal").style.display="none";}}
+
+// 🔹 Init language + search
+document.getElementById('langSelect').onchange=function(){currentLang=this.value;updateLanguage();renderMedicines();};
+searchBox.addEventListener('input',function(){renderMedicines(this.value);});
+renderMedicines();renderCart();updateLanguage();
+
+// 🔹 Voice search
+if('webkitSpeechRecognition' in window){const recognition=new webkitSpeechRecognition();recognition.lang="en-IN";recognition.continuous=false;recognition.interimResults=false;micBtn.onclick=()=>{recognition.start();voiceResult.textContent="🎤 Listening...";};recognition.onresult=(event)=>{const transcript=event.results[0][0].transcript.toLowerCase();voiceResult.textContent="You said: "+transcript;let found=false;Object.keys(symptomMap).forEach(sym=>{if(transcript.includes(sym)){renderMedicines(sym);found=true;}});if(!found){searchBox.value=transcript;renderMedicines(transcript);}};recognition.onerror=(e)=>{voiceResult.textContent="❌ Voice error: "+e.error;};}else{micBtn.style.display="none";voiceResult.textContent="Voice search not supported in this browser.";}
+
+// 🔹 Dark mode toggle
+function loadTheme(){if(localStorage.getItem("darkMode")==="true"){document.body.classList.add("dark-mode");themeToggle.textContent="☀️ Light Mode";}}
+themeToggle.onclick=()=>{document.body.classList.toggle("dark-mode");const dark=document.body.classList.contains("dark-mode");themeToggle.textContent=dark?"☀️ Light Mode":"🌙 Dark Mode";localStorage.setItem("darkMode",dark);}
+loadTheme();
+</script>
+</body>
+</html>

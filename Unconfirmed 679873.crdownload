@@ -1,0 +1,96 @@
+const express = require("express");
+const mongoose = require("mongoose");
+const bodyParser = require("body-parser");
+const cors = require("cors");
+const nodemailer = require("nodemailer");
+const crypto = require("crypto");
+require("dotenv").config();
+
+const app = express();
+app.use(cors());
+app.use(bodyParser.json());
+
+// MongoDB connection
+mongoose.connect("mongodb://127.0.0.1:27017/telemedicine", {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+.then(() => console.log("MongoDB Connected"))
+.catch(err => console.log(err));
+
+// User Schema
+const userSchema = new mongoose.Schema({
+  username: String,
+  role: String,
+  gender: String,
+  age: Number,
+  email: String,
+  password: String,
+  verified: { type: Boolean, default: false },
+  token: String,
+});
+
+const User = mongoose.model("User", userSchema);
+
+// Nodemailer transporter
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER, // your gmail
+    pass: process.env.EMAIL_PASS, // app password
+  },
+});
+
+// Signup API
+app.post("/signup", async (req, res) => {
+  try {
+    const { username, role, gender, age, email, password } = req.body;
+
+    // Generate verification token
+    const token = crypto.randomBytes(32).toString("hex");
+
+    // Save user with "not verified"
+    const newUser = new User({ username, role, gender, age, email, password, token });
+    await newUser.save();
+
+    // Send verification email
+    const verifyLink = `http://localhost:3000/verify/${token}`;
+    await transporter.sendMail({
+      from: `"Tele Medicine" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: "Verify Your Email - Tele Medicine",
+      html: `
+        <h2>Welcome to Tele Medicine, ${username}</h2>
+        <p>Please click the link below to verify your account:</p>
+        <a href="${verifyLink}">${verifyLink}</a>
+      `,
+    });
+
+    res.json({ message: "Signup successful! Please check your email to verify your account." });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error during signup." });
+  }
+});
+
+// Verification API
+app.get("/verify/:token", async (req, res) => {
+  try {
+    const user = await User.findOne({ token: req.params.token });
+    if (!user) return res.status(400).send("Invalid token");
+
+    user.verified = true;
+    user.token = null; // remove token once used
+    await user.save();
+
+    res.send("<h2>Email verified successfully! You can now <a href='http://localhost:5500/login.html'>login</a>.</h2>");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Verification failed.");
+  }
+});
+
+// Start server
+app.listen(3000, () => {
+  console.log("Server running on http://localhost:3000");
+});
